@@ -3,6 +3,9 @@ from abc import abstractmethod, ABC
 import requests
 import pathlib
 
+ROOT = pathlib.Path(__file__).parent
+DATA = pathlib.Path(ROOT, '../data/vacancies.json')
+
 
 class AbstractHHAPI(ABC):
 
@@ -13,8 +16,6 @@ class AbstractHHAPI(ABC):
 
 class HeadHunterAPI(AbstractHHAPI):
     all = []
-    ROOT = pathlib.Path(__file__).parent
-    DATA = pathlib.Path(ROOT, 'data', 'vacancies.json')
 
     def __init__(self, vacancy):
         self.vacancy = vacancy
@@ -29,7 +30,6 @@ class HeadHunterAPI(AbstractHHAPI):
 
         :return:
         """
-        # keys_response = {'text': f'NAME:{self.vacancy}'}
         response = requests.get(f'https://api.hh.ru/vacancies', {'text': self.vacancy})
         if response.status_code == 200:
             return json.loads(response.text)['items']
@@ -45,7 +45,7 @@ class HeadHunterAPI(AbstractHHAPI):
             return f'Выбранная вакансия не найдена'
         else:
             with open(DATA, 'w', encoding='utf-8') as file:
-                file.write(json.dumps(self.all_vacancy, ensure_ascii=False))
+                file.write(json.dumps(self.all_vacancy, ensure_ascii=False, indent=4))
             return self.all_vacancy
 
     # def json_file_vacancies(self):
