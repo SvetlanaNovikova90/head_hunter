@@ -27,8 +27,6 @@ class Vacancy(HeadHunterAPI):
                                'url': vacancies['alternate_url'],
                                'responsibility': vacancies['snippet']['responsibility']}
                     self.vacancy_now.append(all_inf)
-                return self.vacancy_now
-
             except TypeError:
                 continue
 
