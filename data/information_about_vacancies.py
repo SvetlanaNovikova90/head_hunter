@@ -5,19 +5,13 @@ from head_hunter.data.get_vacancies_api import HeadHunterAPI
 
 
 class Vacancy(HeadHunterAPI):
-    def __init__(self, vacancy: str, salary, top, responsibility = None):
+    def __init__(self, vacancy, top=None, salary=None):
         super().__init__(vacancy)
-        self.salary = salary
         self.top = top
-        self.responsibility = responsibility
+        self.salary = salary
         self.sort_salary = []  # Вакансии с выбранной зарплатой
         self.top_n = []  # N вакансий отсортированных по зарплате
         self.vacancy_now = []  # Все вакансии по аттрибутам
-
-    # @property
-    # def name(self):
-    #     for i in self.top_n:
-    #         return print(f"{i['name']} - {i['salary']}")
 
     def selecting_attributes(self) -> list[Any]:
         """
@@ -33,6 +27,7 @@ class Vacancy(HeadHunterAPI):
                                'url': vacancies['alternate_url'],
                                'responsibility': vacancies['snippet']['responsibility']}
                     self.vacancy_now.append(all_inf)
+                return self.vacancy_now
 
             except TypeError:
                 continue
@@ -46,7 +41,6 @@ class Vacancy(HeadHunterAPI):
         for i in self.vacancy_now:
             if i['salary'] >= salary:
                 self.sort_salary.append(i)
-                print(i['salary'])
         return self.sort_salary
 
     def get_top_vacancies(self, n) -> list[Any]:
@@ -56,16 +50,25 @@ class Vacancy(HeadHunterAPI):
         """
         self.sort_salary = sorted(self.sort_salary, key=itemgetter('salary'), reverse=True)
         self.top_n = self.sort_salary[:n]
+
     def info(self):
+        """
+        Вывод инфомации по запросу
+        :return:
+        """
         counter = 1
         for i in self.top_n:
             print(f"{counter}) {i['name']}, зарплата: {i['salary']}")
-            counter +=1
+            counter += 1
 
     def additional_info(self, num):
+        """
+        Вывод дополнительной информации по выбранной вакансии
+        :param num:
+        :return:
+        """
         counter = 0
         for i in self.top_n:
-            counter +=1
+            counter += 1
             if counter == num:
                 print(f'{i["responsibility"]}')
-
