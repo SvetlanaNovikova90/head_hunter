@@ -1,4 +1,3 @@
-
 from operator import itemgetter
 from typing import Any
 
@@ -6,43 +5,67 @@ from head_hunter.data.get_vacancies_api import HeadHunterAPI
 
 
 class Vacancy(HeadHunterAPI):
-    def __init__(self, vacancy: str):
+    def __init__(self, vacancy: str, salary, top, responsibility = None):
         super().__init__(vacancy)
-        self.sort_salary = []
-        self.top = []
-        self.top_n = []
+        self.salary = salary
+        self.top = top
+        self.responsibility = responsibility
+        self.sort_salary = []  # Вакансии с выбранной зарплатой
+        self.top_n = []  # N вакансий отсортированных по зарплате
+        self.vacancy_now = []  # Все вакансии по аттрибутам
 
-    def sorted_salary(self, salary: int) -> list[Any]:
+    # @property
+    # def name(self):
+    #     for i in self.top_n:
+    #         return print(f"{i['name']} - {i['salary']}")
+
+    def selecting_attributes(self) -> list[Any]:
         """
-        Сортировка спска вакансий по
-        :param all_vacancy:
-        :param salary:
-        :param city:
-        :return:
+        Выборка нужных атрибутов из общего списка
+        :return: Список с нужными атрибутами
         """
         for vacancies in self.all_vacancy:
             # print(vacancies['name'], vacancies['area']['name'])
             try:
                 if vacancies['salary']['from'] is not None:
-                    if vacancies['salary']['from'] >= salary:
-                        self.sort_salary.append(vacancies)
+                    all_inf = {'name': vacancies['name'], 'id': vacancies['id'], 'salary': vacancies['salary']['from'],
+                               'city': vacancies["area"]['name'],
+                               'url': vacancies['alternate_url'],
+                               'responsibility': vacancies['snippet']['responsibility']}
+                    self.vacancy_now.append(all_inf)
+
             except TypeError:
                 continue
+
+    def sorted_salary(self, salary) -> list[Any]:
+        """
+        Выборка вакансий по зарплате
+        :param salary:
+        :return: Список вакасий с нужной зарплатой
+        """
+        for i in self.vacancy_now:
+            if i['salary'] >= salary:
+                self.sort_salary.append(i)
+                print(i['salary'])
         return self.sort_salary
 
     def get_top_vacancies(self, n) -> list[Any]:
         """
-        Get top vacancies.
-        :return: list with vacancies.
+        Выборка необходимого количества вакансий, отсортированных по зарплате
+        :return: Список вакансий
         """
-        for i in self.sort_salary:
-            all_inf = {'name': i['name'], 'id': i['id'], 'salary': i['salary']['from'], 'city': i["area"]['name'],
-                       'url': i['alternate_url'],
-                       'responsibility': i['snippet']['responsibility']}
-            self.top.append(all_inf)
+        self.sort_salary = sorted(self.sort_salary, key=itemgetter('salary'), reverse=True)
+        self.top_n = self.sort_salary[:n]
+    def info(self):
+        counter = 1
+        for i in self.top_n:
+            print(f"{counter}) {i['name']}, зарплата: {i['salary']}")
+            counter +=1
 
-        self.top = sorted(self.top, key=itemgetter('salary'), reverse=True)
-        self.top_n = self.top[0:n]
-
-        return self.top_n
+    def additional_info(self, num):
+        counter = 0
+        for i in self.top_n:
+            counter +=1
+            if counter == num:
+                print(f'{i["responsibility"]}')
 
