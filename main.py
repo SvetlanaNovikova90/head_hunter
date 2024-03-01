@@ -6,12 +6,14 @@ if __name__ == '__main__':
     salary = int(input('Введите ожидаемый уровень дохода (например: 50000): '))
     top = int(input('Какое количество вакансий с наибольшим доходом вывести на экран: '))
 
-    user = Vacancy(name, top, salary)
+    user = Vacancy(name, salary, 'Россия')
     user.get_vacancies()
     user.add_vacancies()
     # user.delete_vacancy('93919883')
     user.selecting_attributes()
-    user.sorted_salary(salary)
+
+
+    user.sorted_salary()
 
     user.get_top_vacancies(top)
     user.info()

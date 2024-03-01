@@ -5,10 +5,14 @@ from head_hunter.data.get_vacancies_api import HeadHunterAPI
 
 
 class Vacancy(HeadHunterAPI):
-    def __init__(self, vacancy, top=None, salary=None):
+    all = []
+    def __init__(self, vacancy, salary, city=None, id=None, url=None, responsibility=None):
         super().__init__(vacancy)
-        self.top = top
         self.salary = salary
+        self.city = city
+        self.id = id
+        self.url = url
+        self.responsibility = responsibility
         self.sort_salary = []  # Вакансии с выбранной зарплатой
         self.top_n = []  # N вакансий отсортированных по зарплате
         self.vacancy_now = []  # Все вакансии по аттрибутам
@@ -22,23 +26,49 @@ class Vacancy(HeadHunterAPI):
             # print(vacancies['name'], vacancies['area']['name'])
             try:
                 if vacancies['salary']['from'] is not None:
-                    all_inf = {'name': vacancies['name'], 'id': vacancies['id'], 'salary': vacancies['salary']['from'],
+                    all_inf = {'vacancy': vacancies['name'], 'id': vacancies['id'], 'salary': vacancies['salary']['from'],
                                'city': vacancies["area"]['name'],
                                'url': vacancies['alternate_url'],
                                'responsibility': vacancies['snippet']['responsibility']}
                     self.vacancy_now.append(all_inf)
+                self.vacancy_now = sorted(self.vacancy_now, key=itemgetter('salary'), reverse=True)
             except TypeError:
                 continue
+    @classmethod
+    def class_object(cls, vacancy_new):
+        """
+        Создание экземпляров класса с вакансиями
+        :param vacancy: список вакансий
+        :return: список экземпляров
+        """
+        for i in vacancy_new:
+            vacancy = i['vacancy']
+            id = i['id']
+            salary = i['salary']
+            city = i['city']
+            url = i['url']
+            responsibility = i['responsibility']
+            vacancy_all = Vacancy(vacancy, salary, city, id, url, responsibility)
+            Vacancy.all.append(vacancy_all)
+        return Vacancy.all
 
-    def sorted_salary(self, salary) -> list[Any]:
+    def __le__(self, other):
+        return self.salary <= other.salary
+
+    def sorted_salary(self) -> list[Any]:
         """
         Выборка вакансий по зарплате
         :param salary:
         :return: Список вакасий с нужной зарплатой
         """
-        for i in self.vacancy_now:
-            if i['salary'] >= salary:
+        Vacancy.class_object(self.vacancy_now)
+        for i in Vacancy.all:
+            if self <= i:
                 self.sort_salary.append(i)
+
+        # for i in self.vacancy_now:
+        #     if i['salary'] >= salary:
+        #         self.sort_salary.append(i)
         return self.sort_salary
 
     def get_top_vacancies(self, n) -> list[Any]:
@@ -46,7 +76,6 @@ class Vacancy(HeadHunterAPI):
         Выборка необходимого количества вакансий, отсортированных по зарплате
         :return: Список вакансий
         """
-        self.sort_salary = sorted(self.sort_salary, key=itemgetter('salary'), reverse=True)
         self.top_n = self.sort_salary[:n]
 
     def info(self):
@@ -56,7 +85,7 @@ class Vacancy(HeadHunterAPI):
         """
         counter = 1
         for i in self.top_n:
-            print(f"{counter}) {i['name']}, зарплата: {i['salary']}")
+            print(f"{counter}) {i.vacancy}, зарплата: {i.salary}")
             counter += 1
 
     def additional_info(self, num):
@@ -69,4 +98,4 @@ class Vacancy(HeadHunterAPI):
         for i in self.top_n:
             counter += 1
             if counter == num:
-                print(f'{i["responsibility"]}')
+                print(f'Описание: {i.responsibility}')
