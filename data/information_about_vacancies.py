@@ -1,11 +1,12 @@
 from operator import itemgetter
-from typing import Any
+from typing import Any, List
 
 from head_hunter.data.get_vacancies_api import HeadHunterAPI
 
 
 class Vacancy(HeadHunterAPI):
     all = []
+
     def __init__(self, vacancy, salary, city=None, id=None, url=None, responsibility=None):
         super().__init__(vacancy)
         self.salary = salary
@@ -26,7 +27,8 @@ class Vacancy(HeadHunterAPI):
             # print(vacancies['name'], vacancies['area']['name'])
             try:
                 if vacancies['salary']['from'] is not None:
-                    all_inf = {'vacancy': vacancies['name'], 'id': vacancies['id'], 'salary': vacancies['salary']['from'],
+                    all_inf = {'vacancy': vacancies['name'], 'id': vacancies['id'],
+                               'salary': vacancies['salary']['from'],
                                'city': vacancies["area"]['name'],
                                'url': vacancies['alternate_url'],
                                'responsibility': vacancies['snippet']['responsibility']}
@@ -34,6 +36,7 @@ class Vacancy(HeadHunterAPI):
                 self.vacancy_now = sorted(self.vacancy_now, key=itemgetter('salary'), reverse=True)
             except TypeError:
                 continue
+
     @classmethod
     def class_object(cls, vacancy_new):
         """
@@ -53,23 +56,24 @@ class Vacancy(HeadHunterAPI):
         return Vacancy.all
 
     def __le__(self, other):
+        """
+        Метод для сравнения экземпляров класса по зарплате
+        :param other: экземпляр класса
+        :return: Bool
+        """
         return self.salary <= other.salary
 
-    def sorted_salary(self) -> list[Any]:
+    def sorted_salary(self) -> str | list[Any]:
         """
         Выборка вакансий по зарплате
-        :param salary:
-        :return: Список вакасий с нужной зарплатой
+        :return: Список вакансий с нужной зарплатой
         """
         Vacancy.class_object(self.vacancy_now)
         for i in Vacancy.all:
             if self <= i:
                 self.sort_salary.append(i)
-
-        # for i in self.vacancy_now:
-        #     if i['salary'] >= salary:
-        #         self.sort_salary.append(i)
-        return self.sort_salary
+            else:
+                return f'Вакансий с данной зарплатой не найдено'
 
     def get_top_vacancies(self, n) -> list[Any]:
         """
