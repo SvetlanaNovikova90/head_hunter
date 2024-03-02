@@ -9,7 +9,6 @@ def user_interaction():
 
     user = Vacancy(name, salary, 'Россия')
     user.get_vacancies()
-    user.add_vacancies()
     user.selecting_attributes()
 
     user.sorted_salary()
@@ -23,17 +22,25 @@ def user_interaction():
     else:
         user.additional_info(num)
 
-
-if __name__ == '__main__':
+def file_interaction():
+    """
+    Функция для работы с файлами
+    :return:
+    """
     user = Vacancy('Python', 50000, 'Россия')
     user.get_vacancies()
     file = JSON_file()
     name_file = 'data/vacancy.json'
     file.seving_to_file(user.all_vacancy, name_file)
     file.get_inf_from_file(name_file)
-    print(file.vacancy)
     file.delete_vacancy_id(name_file, '94107682')
     file.del_to_vacancy(name_file)
-    # user_interaction()
+
+
+
+if __name__ == '__main__':
+
+    user_interaction()
+    file_interaction()
 
 
