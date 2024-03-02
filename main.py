@@ -9,18 +9,20 @@ def user_interaction():
 
     user = Vacancy(name, salary, 'Россия')
     user.get_vacancies()
-    user.selecting_attributes()
+    user.selecting_attributes(user.all_vacancy)
+    # # Vacancy.class_object(attributes)
 
     user.sorted_salary()
-
     user.get_top_vacancies(top)
-    user.info()
-    num = int(input('Если вы хотите дополнительную информацию по одной из вакансий, введите ее номер. \n'
-                    '(Если хотите выйти, введите "Выйти"): '))
-    if num == "Выйти":
+
+    user.info(user.top_n)
+    num = input('Если вы хотите дополнительную информацию по одной из вакансий, введите ее номер. \n'
+                '(Если хотите выйти, введите "Выйти"): ')
+    if num.lower() == "выйти":
         print('Всего доброго')
     else:
         user.additional_info(num)
+
 
 def file_interaction():
     """
@@ -37,10 +39,6 @@ def file_interaction():
     file.del_to_vacancy(name_file)
 
 
-
 if __name__ == '__main__':
-
     user_interaction()
     file_interaction()
-
-

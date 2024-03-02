@@ -18,12 +18,12 @@ class Vacancy(HeadHunterAPI):
         self.top_n = []  # N вакансий отсортированных по зарплате
         self.vacancy_now = []  # Все вакансии по аттрибутам
 
-    def selecting_attributes(self) -> list[Any]:
+    def selecting_attributes(self, all_vacancy):
         """
         Выборка нужных атрибутов из общего списка
         :return: Список с нужными атрибутами
         """
-        for vacancies in self.all_vacancy:
+        for vacancies in all_vacancy:
             # print(vacancies['name'], vacancies['area']['name'])
             try:
                 if vacancies['salary']['from'] is not None:
@@ -36,6 +36,7 @@ class Vacancy(HeadHunterAPI):
                 self.vacancy_now = sorted(self.vacancy_now, key=itemgetter('salary'), reverse=True)
             except TypeError:
                 continue
+        return self.vacancy_now
 
     @classmethod
     def class_object(cls, vacancy_new):
@@ -82,13 +83,13 @@ class Vacancy(HeadHunterAPI):
         """
         self.top_n = self.sort_salary[:n]
 
-    def info(self):
+    def info(self, top_n):
         """
         Вывод инфомации по запросу
         :return:
         """
         counter = 1
-        for i in self.top_n:
+        for i in top_n:
             print(f"{counter}) {i.vacancy}, зарплата: {i.salary}")
             counter += 1
 
